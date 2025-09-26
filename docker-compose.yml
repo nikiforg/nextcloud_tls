@@ -1,0 +1,59 @@
+services:
+
+  # --- MariaDB ---
+  db:
+    image: mariadb:latest
+    container_name: nextcloud-db
+    restart: unless-stopped
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    environment:
+      - MYSQL_ROOT_PASSWORD=supersecure # <-- CHANGE THIS
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloudpassword # <-- CHANGE THIS
+    volumes:
+      - ./db:/var/lib/mysql # <-- CHANGE THIS
+
+  # --- Nextcloud App ---
+  app:
+    image: nextcloud:latest
+    container_name: nextcloud-app
+    restart: unless-stopped
+    user: 1000:1000
+    depends_on:
+      - db
+    environment:
+      - MYSQL_PASSWORD=nextcloudpassword # <-- CHANGE THIS
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=db
+      - NEXTCLOUD_TRUSTED_DOMAINS=nextcloud.example.com
+    volumes:
+      - ./html:/var/www/html # <-- CHANGE THIS
+      - ./data:/var/www/html/data # <-- CHANGE THIS
+
+  # --- Nginx Reverse Proxy ---
+  nginx:
+    image: nginx:latest
+    container_name: nextcloud-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - app
+
+  # --- Certbot for TLS certificates ---
+  certbot:
+    image: certbot/certbot
+    container_name: nextcloud-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: >
+      sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet;
+      sleep 12h & wait $${!}; done"
