@@ -9,8 +9,7 @@
 - Clean up residue container:
 	- `docker stop nginx-temp`
 	- `docker rm nginx-temp`
-- Change the volume mount drive/point and user id (if needed), passwords and domains in `docker-compose.yml`
-- Change nginx.conf 
+- Change the volume mount drive/point and user id (if needed, but needs to be same as in `nextcloud-cron/Dockerfile`), passwords and domains in `docker-compose.yml`
 - Create volume mounts for nextcloud if they don't exist using same user id
 - Change domains in `nginx.conf` with proper ones.
 - Start nextcloud:
