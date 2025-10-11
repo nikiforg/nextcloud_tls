@@ -15,6 +15,8 @@
 - Start nextcloud:
 	- `docker compose up -d`
 - Visit the app at `nextcloud.example.com` and install the app and setup admin user.
+	- Some apps need `cron.php` to run as background tasks (e.g. Recognize), not AJAX, this can be changed in Administration Settings -> Administration -> Basic Settings -> Background jobs
+ 	- For this a separate container `nextcloud-cron` is build from `nextcloud-cron/Dockerfile`.
 - Install Nextcloud android app from playstore and attempt login.
 - From web app via browser logged in with admin user go to `Security` under `Personal`, scroll down to `Devices & sessions` and create a new app password
 	- This will generate a QR code to be able to login via android app
