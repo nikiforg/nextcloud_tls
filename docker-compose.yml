@@ -17,6 +17,7 @@ services:
   # --- Nextcloud App ---
   app:
     build: .
+    image: nextcloud-custom:latest
     container_name: nextcloud-app
     restart: unless-stopped
     user: 1000:1000
