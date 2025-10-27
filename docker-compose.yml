@@ -7,12 +7,12 @@ services:
     restart: unless-stopped
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     environment:
-      - MYSQL_ROOT_PASSWORD=supersecure # <-- CHANGE THIS
+      - MYSQL_ROOT_PASSWORD=3b9d778c65a3f08eb03a66e30d37b5feeda500f26b7a1739e3e4fb4d7e25c5d8
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
-      - MYSQL_PASSWORD=nextcloudpassword # <-- CHANGE THIS
+      - MYSQL_PASSWORD=f7d2a7917bb1a0a7f7bdcb642883359e17dcd0cad794a54cd733dd1761f1db97
     volumes:
-      - ./db:/var/lib/mysql # <-- CHANGE THIS
+      - /mnt/ext4_data/nextcloud/db:/var/lib/mysql
 
   # --- Nextcloud App ---
   app:
@@ -23,14 +23,30 @@ services:
     depends_on:
       - db
     environment:
-      - MYSQL_PASSWORD=nextcloudpassword # <-- CHANGE THIS
+      - PHP_MEMORY_LIMIT=1024M
+      - MYSQL_PASSWORD=f7d2a7917bb1a0a7f7bdcb642883359e17dcd0cad794a54cd733dd1761f1db97
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_HOST=db
-      - NEXTCLOUD_TRUSTED_DOMAINS=nextcloud.example.com
+      - NEXTCLOUD_TRUSTED_DOMAINS=nextcloud.ngeorgiev.com
     volumes:
-      - ./html:/var/www/html # <-- CHANGE THIS
-      - ./data:/var/www/html/data # <-- CHANGE THIS
+      - /mnt/ext4_data/nextcloud/html:/var/www/html
+      - /mnt/ext4_data/nextcloud/data:/var/www/html/data
+
+  # --- Nextcloud Cron ---
+  cron:
+    build: ./nextcloud-cron
+    image: nextcloud-cron:latest
+    container_name: nextcloud-cron
+    restart: unless-stopped
+    environment:
+      - PHP_MEMORY_LIMIT=1024M
+    depends_on:
+      - db
+      - app
+    volumes:
+      - /mnt/ext4_data/nextcloud/html:/var/www/html
+      - /mnt/ext4_data/nextcloud/data:/var/www/html/data
 
   # --- Nginx Reverse Proxy ---
   nginx:
