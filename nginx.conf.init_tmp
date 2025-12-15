@@ -1,0 +1,12 @@
+server {
+    listen 80;
+    server_name example.com;  # <-- replace with your domain
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 404;  # everything else returns 404 for now
+    }
+}
