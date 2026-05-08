@@ -1,0 +1,12 @@
+[Unit]
+Description=Nextcloud background job (cron.php)
+# Only run if the app container is actually running
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+# __USER_ID__ is substituted by 'make deploy' with the value from .env
+ExecStart=/usr/bin/docker exec -u __USER_ID__ nextcloud-app php /var/www/html/cron.php
+# Gracefully ignore failures when the container is not running
+SuccessExitStatus=0 1

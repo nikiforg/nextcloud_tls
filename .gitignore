@@ -1,0 +1,6 @@
+.env
+.secrets
+.env.compose
+nginx.conf.generated
+certbot/
+nextcloud-data/
